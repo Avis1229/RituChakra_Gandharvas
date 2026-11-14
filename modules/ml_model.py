@@ -17,7 +17,7 @@ class CropSuitabilityModel:
             n_estimators=35,
             max_depth=6,
             random_state=42,
-            n_jobs=2
+            n_jobs=1
         )
         self.is_trained = False
         self.feature_names = [
