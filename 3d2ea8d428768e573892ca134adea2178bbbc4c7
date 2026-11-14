@@ -1,0 +1,4 @@
+Task: Write tests for NASA POWER module (tests/test_nasa_power.py)
+Summary: Added 4 unit tests validating API response parsing, -999 imputation, timeout/503 fallback activation, and synthetic schema.
+Files: tests/test_nasa_power.py
+Why: Ensures reliability and offline resilience of NASA Earth observation data ingestion.
