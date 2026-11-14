@@ -1,0 +1,4 @@
+Task: Write tests for Visualizer module (tests/test_visualizer.py)
+Summary: Added tests validating Plotly figure generation for 10-year dual-axis climate trends, seasonal monsoon shift area charts, 2-row calibration subplots, and strategy comparison bar/radar charts.
+Files: tests/test_visualizer.py
+Why: Ensures all interactive dashboard visual components render properly without schema or trace defects.
