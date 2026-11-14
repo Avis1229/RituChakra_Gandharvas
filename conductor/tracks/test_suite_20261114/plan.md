@@ -27,12 +27,12 @@
   - [x] Test synthetic baseline training, model convergence, and sub-millisecond inference
   - [x] Test crop-specific scoring and agronomic penalty behavior (e.g., Rice vs. Bajra in drought)
   - [x] Test feature importances extraction
-- [~] Task: Write tests for 3-Strategy Rotation Engine (`tests/test_rotation_engine.py`)
-  - [ ] Verify Strategy 1 (Optimized Baseline with shifted planting calendar)
-  - [ ] Verify Strategy 2 (Soil Builder with positive biological N fixation and water savings)
-  - [ ] Verify Strategy 3 (Climate Resilient drought/thermal tolerance up to 42°C)
-  - [ ] Verify multi-criteria comparison matrix and exportable advisory text generation
-- [ ] Task: Write tests for Visualizer module (`tests/test_visualizer.py`)
+- [x] Task: Write tests for 3-Strategy Rotation Engine (`tests/test_rotation_engine.py`) (e781596)
+  - [x] Verify Strategy 1 (Optimized Baseline with shifted planting calendar)
+  - [x] Verify Strategy 2 (Soil Builder with positive biological N fixation and water savings)
+  - [x] Verify Strategy 3 (Climate Resilient drought/thermal tolerance up to 42°C)
+  - [x] Verify multi-criteria comparison matrix and exportable advisory text generation
+- [~] Task: Write tests for Visualizer module (`tests/test_visualizer.py`)
   - [ ] Verify `create_climate_trend_chart` returns a valid Plotly Figure
   - [ ] Verify `create_seasonality_shift_chart`, `create_calibration_comparison_chart`, and `create_strategy_radar_comparison`
 - [ ] Task: Phase Verification & Checkpoint (Refer to workflow.md)
