@@ -1,11 +1,11 @@
 # Implementation Plan: Unit & Integration Test Suite
 
-## Phase 1: Test Infrastructure & Fixture Setup
+## Phase 1: Test Infrastructure & Fixture Setup [checkpoint: 1913e78]
 - [x] Task: Install test dependencies and configure test environment (1913e78)
   - [x] Add `pytest` and `pytest-cov` to `.venv` and update `requirements.txt`
   - [x] Create `pytest.ini` with standard flags, pythonpath, and test discovery filters
   - [x] Create `tests/conftest.py` with mock NASA API payloads and sample ESP32 telemetry fixtures
-- [ ] Task: Phase Verification & Checkpoint (Refer to workflow.md)
+- [x] Task: Phase Verification & Checkpoint (Refer to workflow.md) (1913e78)
 
 ## Phase 2: Core Data Ingestion & Calibration Tests
 - [ ] Task: Write tests for NASA POWER module (`tests/test_nasa_power.py`)
