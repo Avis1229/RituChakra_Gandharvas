@@ -162,3 +162,4 @@ def generate_rotation_strategies(current_crop: str,
         "strategy_3": strategy_3,
         "comparison_table": comparison_df
     }
+

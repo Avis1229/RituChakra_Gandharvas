@@ -115,3 +115,4 @@ class CropSuitabilityModel:
         """Returns relative importance of tabular inputs for transparency"""
         imps = self.model.feature_importances_
         return {name: round(float(imp * 100), 1) for name, imp in zip(self.feature_names, imps)}
+

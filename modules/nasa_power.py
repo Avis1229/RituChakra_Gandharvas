@@ -131,3 +131,4 @@ def fetch_nasa_power_climate(lat: float, lon: float, start_year: int = 2014, end
         
     # Return realistic calibrated fallback
     return generate_synthetic_fallback(lat, lon, start_year, end_year)
+

@@ -228,3 +228,4 @@ def create_strategy_radar_comparison(strategies: dict) -> go.Figure:
     )
     fig.update_yaxes(title_text="Percentage (%)", range=[0, 105], showgrid=True)
     return fig
+

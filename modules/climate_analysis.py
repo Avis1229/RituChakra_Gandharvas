@@ -111,3 +111,4 @@ def compute_climate_shifts(df_climate: pd.DataFrame) -> dict:
         "monthly_recent": recent_monthly_precip.to_dict(),
         "insights": insights
     }
+

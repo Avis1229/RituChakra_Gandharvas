@@ -105,3 +105,4 @@ class CommunityNodeEngine:
             "active_sensors": ["DHT22 Ambient Temp/RH", "Capacitive Soil VWC Probe (10cm)", "Tipping Bucket Rain Gauge", "Solar Pyranometer Photodiode"],
             "calibration_formula": "Calibrated_Value = α · Ground_Node_Obs + (1 - α) · NASA_Grid_Pixel (α = 0.75)"
         }
+
