@@ -23,11 +23,11 @@
   - [x] Test decadal warming slope regression and annual precipitation anomalies
   - [x] Test monsoon peak month shift detection and drought vulnerability index scoring
   - [x] Test edge cases (empty data, single-year data, missing parameters)
-- [~] Task: Write tests for ML Crop Suitability Model (`tests/test_ml_model.py`)
-  - [ ] Test synthetic baseline training, model convergence, and sub-millisecond inference
-  - [ ] Test crop-specific scoring and agronomic penalty behavior (e.g., Rice vs. Bajra in drought)
-  - [ ] Test feature importances extraction
-- [ ] Task: Write tests for 3-Strategy Rotation Engine (`tests/test_rotation_engine.py`)
+- [x] Task: Write tests for ML Crop Suitability Model (`tests/test_ml_model.py`) (4000695)
+  - [x] Test synthetic baseline training, model convergence, and sub-millisecond inference
+  - [x] Test crop-specific scoring and agronomic penalty behavior (e.g., Rice vs. Bajra in drought)
+  - [x] Test feature importances extraction
+- [~] Task: Write tests for 3-Strategy Rotation Engine (`tests/test_rotation_engine.py`)
   - [ ] Verify Strategy 1 (Optimized Baseline with shifted planting calendar)
   - [ ] Verify Strategy 2 (Soil Builder with positive biological N fixation and water savings)
   - [ ] Verify Strategy 3 (Climate Resilient drought/thermal tolerance up to 42°C)
