@@ -8,11 +8,11 @@
 - [x] Task: Phase Verification & Checkpoint (Refer to workflow.md) (1913e78)
 
 ## Phase 2: Core Data Ingestion & Calibration Tests
-- [ ] Task: Write tests for NASA POWER module (`tests/test_nasa_power.py`)
-  - [ ] Test successful API response parsing and `-999` value imputation
-  - [ ] Test network exception handling and seamless fallback to `generate_synthetic_fallback`
-  - [ ] Test schema validation and date formatting of generated climate DataFrame
-- [ ] Task: Write tests for Community Node calibration (`tests/test_community_node.py`)
+- [x] Task: Write tests for NASA POWER module (`tests/test_nasa_power.py`) (3d2ea8d)
+  - [x] Test successful API response parsing and `-999` value imputation
+  - [x] Test network exception handling and seamless fallback to `generate_synthetic_fallback`
+  - [x] Test schema validation and date formatting of generated climate DataFrame
+- [~] Task: Write tests for Community Node calibration (`tests/test_community_node.py`)
   - [ ] Test realistic ESP32 telemetry bounds (temperature, rain tips, 0–100% soil VWC)
   - [ ] Test sensor fusion formula ($X_{calibrated} = 0.75 \cdot X_{ground} + 0.25 \cdot X_{satellite}$)
   - [ ] Test calculation of calibration metrics and MAE error reduction (>65%)
