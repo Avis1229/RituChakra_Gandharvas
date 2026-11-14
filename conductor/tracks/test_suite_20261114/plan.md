@@ -1,10 +1,10 @@
 # Implementation Plan: Unit & Integration Test Suite
 
 ## Phase 1: Test Infrastructure & Fixture Setup
-- [ ] Task: Install test dependencies and configure test environment
-  - [ ] Add `pytest` and `pytest-cov` to `.venv` and update `requirements.txt`
-  - [ ] Create `pytest.ini` with standard flags, pythonpath, and test discovery filters
-  - [ ] Create `tests/conftest.py` with mock NASA API payloads and sample ESP32 telemetry fixtures
+- [x] Task: Install test dependencies and configure test environment (1913e78)
+  - [x] Add `pytest` and `pytest-cov` to `.venv` and update `requirements.txt`
+  - [x] Create `pytest.ini` with standard flags, pythonpath, and test discovery filters
+  - [x] Create `tests/conftest.py` with mock NASA API payloads and sample ESP32 telemetry fixtures
 - [ ] Task: Phase Verification & Checkpoint (Refer to workflow.md)
 
 ## Phase 2: Core Data Ingestion & Calibration Tests
