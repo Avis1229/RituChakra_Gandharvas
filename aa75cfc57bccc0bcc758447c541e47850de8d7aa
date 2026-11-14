@@ -1,0 +1,4 @@
+Task: Write tests for Climate Shift Analysis (tests/test_climate_analysis.py)
+Summary: Added tests validating decadal trend regression, monsoon peak detection, and drought vulnerability index. Fixed single-sample NaN variance and empty idxmax edge cases.
+Files: modules/climate_analysis.py, tests/test_climate_analysis.py
+Why: Hardens agricultural trend analytics against incomplete or single-year climate records.
