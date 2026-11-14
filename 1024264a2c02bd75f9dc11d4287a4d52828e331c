@@ -1,0 +1,4 @@
+Task: Write tests for Community Node calibration (tests/test_community_node.py)
+Summary: Added 4 unit tests validating telemetry bounds, sensor fusion calibration math, and MAE error reduction metrics.
+Files: tests/test_community_node.py
+Why: Ensures rigorous verification of the Gandharvas Community Node USP and sensor fusion engine.
