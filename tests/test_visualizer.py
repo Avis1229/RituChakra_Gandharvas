@@ -70,3 +70,4 @@ def test_create_strategy_radar_comparison():
     assert isinstance(fig, go.Figure)
     assert len(fig.data) == 2 # Trace 1: Suitability, Trace 2: Water savings
     assert len(fig.data[0].x) == 3
+

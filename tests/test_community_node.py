@@ -64,3 +64,4 @@ def test_calculate_calibration_metrics():
     assert metrics["temp_accuracy_gain_pct"] > 50.0
     assert metrics["sm_accuracy_gain_pct"] > 50.0
     assert len(metrics["active_sensors"]) >= 4
+

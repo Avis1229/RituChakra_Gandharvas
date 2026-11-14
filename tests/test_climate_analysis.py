@@ -56,3 +56,4 @@ def test_compute_climate_shifts_multi_year_trend(sample_climate_dataframe):
     # Actionable insights list must contain agricultural alert bullets
     assert len(shifts["insights"]) >= 2
     assert any("Thermal Shift" in s or "Warming" in s for s in shifts["insights"])
+

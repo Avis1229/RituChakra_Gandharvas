@@ -83,3 +83,4 @@ def test_rotation_sowing_shift_early_monsoon(sample_soil_profile, sample_calibra
     
     s1 = res["strategy_1"]
     assert "Advance sowing" in s1["sowing_action"]
+

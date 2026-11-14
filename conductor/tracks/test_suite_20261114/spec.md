@@ -45,3 +45,4 @@ This track implements an automated, high-fidelity unit and integration test suit
 ## 5. Out of Scope
 - End-to-end browser automation for Streamlit UI (Selenium/Playwright) in this phase.
 - Live hardware flashing tests on physical ESP32 boards (hardware simulation only).
+
