@@ -1,0 +1,4 @@
+Task: Write tests for ML Crop Suitability Model (tests/test_ml_model.py)
+Summary: Added tests validating baseline fitting, sub-10ms latency, drought penalty heuristics, and feature importance weighting. Optimized Random Forest n_jobs=1 for single-sample inference.
+Files: modules/ml_model.py, tests/test_ml_model.py
+Why: Guarantees lightning-fast, reproducible suitability scoring without GPU load.
