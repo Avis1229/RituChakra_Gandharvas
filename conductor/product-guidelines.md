@@ -16,3 +16,4 @@
 - **Cognitive Load Reduction:** Multi-criteria trade-offs (Suitability %, Water Need mm, Soil N balance, Risk) presented side-by-side in clear cards and interactive Plotly figures rather than dense tables alone.
 - **Offline & Low-Bandwidth Resilience:** Visual loading feedback with non-blocking cached fallback data so the dashboard never fails even under degraded connectivity.
 - **Exportable Utility:** One-click downloadable agronomic advisory summaries for physical distribution or sharing via messaging channels.
+

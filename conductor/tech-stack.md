@@ -26,3 +26,4 @@
 - **Sensors:** SHT31-D / DHT22 (Ambient Temp/RH), Capacitive Soil Moisture v1.2 (10cm root-zone VWC %), Optical/Tipping Rain Gauge.
 - **Firmware Stack:** C++ / Arduino Framework (`firmware/esp32_community_node.ino`) utilizing `ArduinoJson` and `PubSubClient` (MQTT).
 - **Communication Protocol:** JSON payload over WiFi / 4G LTE-M / LoRaWAN to central Gram Panchayat MQTT broker.
+

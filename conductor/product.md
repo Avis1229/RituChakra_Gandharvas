@@ -27,3 +27,4 @@
 - **Smallholder Farmers:** Access actionable, simple recommendations via a clean Streamlit web app without hardware overhead.
 - **Agricultural Extension Officers / KVK Agronomists:** Review downscaled local climate shifts and export printable advisory reports.
 - **Gram Panchayat / Community Admins:** Monitor the live telemetry and calibration health of the village AWS node.
+
