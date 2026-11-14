@@ -1,0 +1,4 @@
+Task: Write tests for 3-Strategy Rotation Engine (tests/test_rotation_engine.py)
+Summary: Added tests validating generation of Strategy 1 (Baseline), Strategy 2 (Soil Builder Legumes), Strategy 3 (Climate Resilient Cereals), comparison table schema, and monsoon sowing adjustments.
+Files: tests/test_rotation_engine.py
+Why: Ensures rigorous verification of core agronomic rotation recommendations and multi-criteria comparison.
