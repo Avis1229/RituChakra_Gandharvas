@@ -32,9 +32,9 @@
   - [x] Verify Strategy 2 (Soil Builder with positive biological N fixation and water savings)
   - [x] Verify Strategy 3 (Climate Resilient drought/thermal tolerance up to 42°C)
   - [x] Verify multi-criteria comparison matrix and exportable advisory text generation
-- [~] Task: Write tests for Visualizer module (`tests/test_visualizer.py`)
-  - [ ] Verify `create_climate_trend_chart` returns a valid Plotly Figure
-  - [ ] Verify `create_seasonality_shift_chart`, `create_calibration_comparison_chart`, and `create_strategy_radar_comparison`
+- [x] Task: Write tests for Visualizer module (`tests/test_visualizer.py`) (37e9568)
+  - [x] Verify `create_climate_trend_chart` returns a valid Plotly Figure
+  - [x] Verify `create_seasonality_shift_chart`, `create_calibration_comparison_chart`, and `create_strategy_radar_comparison`
 - [ ] Task: Phase Verification & Checkpoint (Refer to workflow.md)
 
 ## Phase 4: Full Coverage Verification & Quality Gate
