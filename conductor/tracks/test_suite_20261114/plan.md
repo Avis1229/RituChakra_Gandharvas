@@ -7,7 +7,7 @@
   - [x] Create `tests/conftest.py` with mock NASA API payloads and sample ESP32 telemetry fixtures
 - [x] Task: Phase Verification & Checkpoint (Refer to workflow.md) (1913e78)
 
-## Phase 2: Core Data Ingestion & Calibration Tests
+## Phase 2: Core Data Ingestion & Calibration Tests [checkpoint: 04740f3]
 - [x] Task: Write tests for NASA POWER module (`tests/test_nasa_power.py`) (3d2ea8d)
   - [x] Test successful API response parsing and `-999` value imputation
   - [x] Test network exception handling and seamless fallback to `generate_synthetic_fallback`
@@ -16,7 +16,7 @@
   - [x] Test realistic ESP32 telemetry bounds (temperature, rain tips, 0–100% soil VWC)
   - [x] Test sensor fusion formula ($X_{calibrated} = 0.75 \cdot X_{ground} + 0.25 \cdot X_{satellite}$)
   - [x] Test calculation of calibration metrics and MAE error reduction (>65%)
-- [ ] Task: Phase Verification & Checkpoint (Refer to workflow.md)
+- [x] Task: Phase Verification & Checkpoint (Refer to workflow.md) (04740f3)
 
 ## Phase 3: Analytics, ML Model & Rotation Engine Tests
 - [ ] Task: Write tests for Climate Shift Analysis (`tests/test_climate_analysis.py`)
