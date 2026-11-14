@@ -27,3 +27,9 @@
 - **Firmware Stack:** C++ / Arduino Framework (`firmware/esp32_community_node.ino`) utilizing `ArduinoJson` and `PubSubClient` (MQTT).
 - **Communication Protocol:** JSON payload over WiFi / 4G LTE-M / LoRaWAN to central Gram Panchayat MQTT broker.
 
+## 6. Testing & Quality Assurance
+- **Testing Framework:** Pytest (`>=9.0.0`)
+- **Coverage Analysis:** Pytest-Cov (`>=7.0.0`) / Coverage.py (`>=7.17.0`)
+- **Quality Gate:** >80% code coverage across all analytics, ML, and calibration modules (Current: **98%**).
+- **Execution Profile:** Deterministic offline mock testing + live NASA POWER API integration suite (`pytest -m integration`).
+
