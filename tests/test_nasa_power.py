@@ -1,5 +1,5 @@
 """
-Unit tests for modules/nasa_power.py
+Unit and Integration tests for modules/nasa_power.py
 Validates NASA POWER REST API parsing, missing value handling, and fallback caching.
 """
 
@@ -74,3 +74,14 @@ def test_fetch_nasa_power_climate_http_error_fallback(mock_get):
     assert isinstance(df, pd.DataFrame)
     assert not df.empty
     assert df["Is_Fallback"].iloc[0] == True
+
+@pytest.mark.integration
+def test_live_nasa_power_api_connection():
+    """LIVE INTEGRATION TEST: Directly queries NASA Langley Research Center REST API."""
+    df = fetch_nasa_power_climate(lat=20.9320, lon=77.7523, start_year=2023, end_year=2023, timeout=12)
+    
+    assert isinstance(df, pd.DataFrame)
+    assert len(df) == 12
+    # Verify real NASA satellite observation values were fetched
+    assert df["Is_Fallback"].iloc[0] == False
+    assert 15.0 <= df["Temperature_C"].mean() <= 38.0
