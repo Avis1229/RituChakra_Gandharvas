@@ -12,10 +12,10 @@
   - [x] Test successful API response parsing and `-999` value imputation
   - [x] Test network exception handling and seamless fallback to `generate_synthetic_fallback`
   - [x] Test schema validation and date formatting of generated climate DataFrame
-- [~] Task: Write tests for Community Node calibration (`tests/test_community_node.py`)
-  - [ ] Test realistic ESP32 telemetry bounds (temperature, rain tips, 0–100% soil VWC)
-  - [ ] Test sensor fusion formula ($X_{calibrated} = 0.75 \cdot X_{ground} + 0.25 \cdot X_{satellite}$)
-  - [ ] Test calculation of calibration metrics and MAE error reduction (>65%)
+- [x] Task: Write tests for Community Node calibration (`tests/test_community_node.py`) (1024264)
+  - [x] Test realistic ESP32 telemetry bounds (temperature, rain tips, 0–100% soil VWC)
+  - [x] Test sensor fusion formula ($X_{calibrated} = 0.75 \cdot X_{ground} + 0.25 \cdot X_{satellite}$)
+  - [x] Test calculation of calibration metrics and MAE error reduction (>65%)
 - [ ] Task: Phase Verification & Checkpoint (Refer to workflow.md)
 
 ## Phase 3: Analytics, ML Model & Rotation Engine Tests
