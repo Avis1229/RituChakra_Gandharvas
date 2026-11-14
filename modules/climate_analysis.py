@@ -36,9 +36,17 @@ def compute_climate_shifts(df_climate: pd.DataFrame) -> dict:
         precip_slope_per_decade = -45.0
         
     # Split into Early Period (First half) vs Recent Period (Second half)
-    half = max(1, num_years // 2)
-    early_years = years[:half]
-    recent_years = years[half:]
+    if num_years < 2:
+        early_years = years
+        recent_years = years
+        early_period_label = str(years[0])
+        recent_period_label = str(years[0])
+    else:
+        half = num_years // 2
+        early_years = years[:half]
+        recent_years = years[half:]
+        early_period_label = f"{early_years[0]}-{early_years[-1]}"
+        recent_period_label = f"{recent_years[0]}-{recent_years[-1]}"
     
     df_early = df_climate[df_climate["Year"].isin(early_years)]
     df_recent = df_climate[df_climate["Year"].isin(recent_years)]
@@ -73,10 +81,15 @@ def compute_climate_shifts(df_climate: pd.DataFrame) -> dict:
     
     # Calculate Drought Vulnerability Index (0 to 100)
     # Higher temperature + declining rainfall + rainfall variance increases vulnerability
-    precip_cv = (annual_df["Precipitation_mm"].std() / max(1.0, annual_df["Precipitation_mm"].mean())) * 100.0
-    drought_index = min(100, max(10, int(
-        40.0 + (temp_delta * 18.0) - (precip_delta_pct * 0.6) + (precip_cv * 0.3)
-    )))
+    precip_std = annual_df["Precipitation_mm"].std() if num_years >= 2 else 0.0
+    precip_cv = (precip_std / max(1.0, annual_df["Precipitation_mm"].mean())) * 100.0
+    if np.isnan(precip_cv):
+        precip_cv = 15.0
+        
+    drought_score = 40.0 + (temp_delta * 18.0) - (precip_delta_pct * 0.6) + (precip_cv * 0.3)
+    if np.isnan(drought_score):
+        drought_score = 50.0
+    drought_index = min(100, max(10, int(drought_score)))
     
     # Actionable insight bullet points
     insights = []
@@ -93,8 +106,8 @@ def compute_climate_shifts(df_climate: pd.DataFrame) -> dict:
         
     return {
         "num_years": num_years,
-        "early_period": f"{years[0]}-{years[half-1]}",
-        "recent_period": f"{years[half]}-{years[-1]}",
+        "early_period": early_period_label,
+        "recent_period": recent_period_label,
         "temp_delta": round(temp_delta, 2),
         "temp_slope_per_decade": round(temp_slope_per_decade, 2),
         "precip_delta_mm": round(precip_delta, 1),
