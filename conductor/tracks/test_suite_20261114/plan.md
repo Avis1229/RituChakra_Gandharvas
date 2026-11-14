@@ -19,11 +19,11 @@
 - [x] Task: Phase Verification & Checkpoint (Refer to workflow.md) (04740f3)
 
 ## Phase 3: Analytics, ML Model & Rotation Engine Tests
-- [ ] Task: Write tests for Climate Shift Analysis (`tests/test_climate_analysis.py`)
-  - [ ] Test decadal warming slope regression and annual precipitation anomalies
-  - [ ] Test monsoon peak month shift detection and drought vulnerability index scoring
-  - [ ] Test edge cases (empty data, single-year data, missing parameters)
-- [ ] Task: Write tests for ML Crop Suitability Model (`tests/test_ml_model.py`)
+- [x] Task: Write tests for Climate Shift Analysis (`tests/test_climate_analysis.py`) (aa75cfc)
+  - [x] Test decadal warming slope regression and annual precipitation anomalies
+  - [x] Test monsoon peak month shift detection and drought vulnerability index scoring
+  - [x] Test edge cases (empty data, single-year data, missing parameters)
+- [~] Task: Write tests for ML Crop Suitability Model (`tests/test_ml_model.py`)
   - [ ] Test synthetic baseline training, model convergence, and sub-millisecond inference
   - [ ] Test crop-specific scoring and agronomic penalty behavior (e.g., Rice vs. Bajra in drought)
   - [ ] Test feature importances extraction
