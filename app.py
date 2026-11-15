@@ -28,7 +28,8 @@ from config import (
     GEOAPIFY_API_KEY,
     MAPBOX_ACCESS_TOKEN
 )
-from modules.geocoder import search_locations, reverse_geocode
+from modules.geocoder import search_locations, reverse_geocode, detect_live_location
+from modules.gps import get_browser_gps
 from modules.nasa_power import fetch_nasa_power_climate
 from modules.community_node import CommunityNodeEngine
 from modules.climate_analysis import compute_climate_shifts
@@ -117,6 +118,10 @@ if "boxes_view_toggle" not in st.session_state:
     st.session_state.boxes_view_toggle = False
 if "_loc_notification" not in st.session_state:
     st.session_state._loc_notification = None
+if "_gps_trigger_counter" not in st.session_state:
+    st.session_state._gps_trigger_counter = 0
+if "_last_locked_gps" not in st.session_state:
+    st.session_state._last_locked_gps = None
 
 if "use_custom_node" not in st.session_state:
     st.session_state.use_custom_node = False
@@ -131,6 +136,37 @@ if "custom_telemetry_data" not in st.session_state:
         "pressure": 1008.2,
         "rain_mm": 0.0
     }
+
+# ==============================================================================
+# HEADLESS BROWSER GPS GEOLOCATION ENGINE (HTML5 Native Geolocation)
+# ==============================================================================
+gps_payload = get_browser_gps(key=f"browser_gps_radar_{st.session_state._gps_trigger_counter}")
+if gps_payload and isinstance(gps_payload, dict):
+    if "latitude" in gps_payload and "longitude" in gps_payload:
+        gps_lat = round(float(gps_payload["latitude"]), 4)
+        gps_lon = round(float(gps_payload["longitude"]), 4)
+        
+        # Only auto-sync if in gps/default/live mode and coordinates changed
+        if st.session_state.get("location_lock_mode") in ["gps", "default", "live"]:
+            if st.session_state.get("_last_locked_gps") != (gps_lat, gps_lon):
+                st.session_state._last_locked_gps = (gps_lat, gps_lon)
+                st.session_state.current_lat = gps_lat
+                st.session_state.current_lon = gps_lon
+                st.session_state.location_lock_mode = "gps"
+                
+                try:
+                    rev = reverse_geocode(gps_lat, gps_lon, mapbox_token=MAPBOX_ACCESS_TOKEN)
+                    formatted_name = rev.get("formatted", f"{gps_lat:.4f}°N, {gps_lon:.4f}°E")
+                    dist = rev.get("district") or rev.get("state") or "Detected Farm Field"
+                    st.session_state.location_name = formatted_name
+                    st.session_state.rc_loc_search = formatted_name
+                    st.session_state.location_zone = f"{dist}, {rev.get('state', '')}".strip(", ") or dist
+                    st.session_state.location_node_id = f"COMM_NODE_{abs(hash(formatted_name)) % 900 + 100}"
+                    st.session_state._loc_notification = f"🛰️ Live Hardware GPS Locked: {formatted_name.split(',')[0]} ({gps_lat:.4f}°N, {gps_lon:.4f}°E)"
+                except Exception:
+                    st.session_state.location_name = f"{gps_lat:.4f}°N, {gps_lon:.4f}°E"
+                    st.session_state.rc_loc_search = st.session_state.location_name
+                st.rerun()
 
 is_dark = (st.session_state.theme_mode == "Dark")
 
@@ -593,24 +629,26 @@ st.html(f"""
 # 3. CURRENT LOCATION BOX + LIVE GPS LOCATE BUTTON
 # ==============================================================================
 def handle_locate_click():
-    from modules.geocoder import detect_live_location
+    st.session_state.location_lock_mode = "gps"
+    st.session_state._last_locked_gps = None  # Force re-lock
+    st.session_state._gps_trigger_counter = st.session_state.get("_gps_trigger_counter", 0) + 1
     
-    # Fast Instant Network Geolocation (zero permission prompt / zero HTTP blocks)
-    live_loc = detect_live_location()
-    if live_loc and isinstance(live_loc, dict):
-        lat = float(live_loc["lat"])
-        lon = float(live_loc["lon"])
-        label = live_loc["label"]
-        st.session_state.current_lat = lat
-        st.session_state.current_lon = lon
-        st.session_state.location_name = label
-        st.session_state.rc_loc_search = label
-        st.session_state.location_zone = f"{live_loc.get('district', '')}, {live_loc.get('state', '')}".strip(", ") or "Detected Region"
-        st.session_state.location_node_id = f"COMM_NODE_{abs(hash(label)) % 900 + 100}"
-        st.session_state.location_lock_mode = "live"
-        st.session_state._loc_notification = f"Live field detected: {label.split(',')[0]} ({lat:.4f}°N, {lon:.4f}°E)"
-    else:
-        st.session_state._loc_notification = "Unable to auto-detect coordinates. Please search your district name."
+    # Fast instant fallback while waiting for browser GPS
+    try:
+        live_loc = detect_live_location()
+        if live_loc and isinstance(live_loc, dict):
+            lat = float(live_loc["lat"])
+            lon = float(live_loc["lon"])
+            label = live_loc["label"]
+            st.session_state.current_lat = lat
+            st.session_state.current_lon = lon
+            st.session_state.location_name = label
+            st.session_state.rc_loc_search = label
+            st.session_state.location_zone = f"{live_loc.get('district', '')}, {live_loc.get('state', '')}".strip(", ") or "Detected Region"
+            st.session_state.location_node_id = f"COMM_NODE_{abs(hash(label)) % 900 + 100}"
+            st.session_state._loc_notification = f"Live field detected: {label.split(',')[0]} ({lat:.4f}°N, {lon:.4f}°E)"
+    except Exception:
+        st.session_state._loc_notification = "Acquiring GPS position from device..."
 
 def handle_search_change():
     query = st.session_state.rc_loc_search.strip()

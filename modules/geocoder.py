@@ -24,6 +24,8 @@ def detect_live_location(api_key: Optional[str] = None) -> Optional[Dict]:
     1. ip-api.com (Instant, reliable, zero key required)
     2. Geoapify IP Geolocation (if key provided)
     3. ipapi.co (Secondary free fallback)
+    Guards against foreign cloud hosting datacenters (Render/AWS/GCP in US/EU)
+    so Indian agro-advisory default never points to overseas locations.
     """
     # 1. Primary fast fallback: ip-api.com
     try:
@@ -36,6 +38,21 @@ def detect_live_location(api_key: Optional[str] = None) -> Optional[Dict]:
                 city = data.get("city", "Local Field")
                 state = data.get("regionName", "")
                 country = data.get("country", "India")
+                country_code = data.get("countryCode", "IN")
+                
+                # Check for cloud hosting data centers (Render in US/EU, etc.)
+                if country_code not in ["IN"] and country not in ["India"]:
+                    return {
+                        "label": "Dehradun, Uttarakhand, India",
+                        "lat": 30.3275,
+                        "lon": 78.0325,
+                        "city": "Dehradun",
+                        "district": "Dehradun",
+                        "state": "Uttarakhand",
+                        "country": "India",
+                        "source": "Agro-Ecological Benchmark Fallback"
+                    }
+
                 return {
                     "label": f"{city}, {state}, {country}".strip(", "),
                     "lat": round(float(lat), 4),
@@ -64,6 +81,18 @@ def detect_live_location(api_key: Optional[str] = None) -> Optional[Dict]:
                     city = data.get("city", {}).get("name") or "Local Field"
                     state = data.get("state", {}).get("name") or ""
                     country = data.get("country", {}).get("name") or "India"
+                    country_code = data.get("country", {}).get("code", "IN")
+                    if country_code not in ["IN"] and country not in ["India"]:
+                        return {
+                            "label": "Dehradun, Uttarakhand, India",
+                            "lat": 30.3275,
+                            "lon": 78.0325,
+                            "city": "Dehradun",
+                            "district": "Dehradun",
+                            "state": "Uttarakhand",
+                            "country": "India",
+                            "source": "Agro-Ecological Benchmark Fallback"
+                        }
                     return {
                         "label": f"{city}, {state}, {country}".strip(", "),
                         "lat": round(float(lat), 4),
@@ -89,6 +118,18 @@ def detect_live_location(api_key: Optional[str] = None) -> Optional[Dict]:
                 city = data.get("city", "Local Field")
                 state = data.get("region", "")
                 country = data.get("country_name", "India")
+                country_code = data.get("country_code", "IN")
+                if country_code not in ["IN"] and country not in ["India"]:
+                    return {
+                        "label": "Dehradun, Uttarakhand, India",
+                        "lat": 30.3275,
+                        "lon": 78.0325,
+                        "city": "Dehradun",
+                        "district": "Dehradun",
+                        "state": "Uttarakhand",
+                        "country": "India",
+                        "source": "Agro-Ecological Benchmark Fallback"
+                    }
                 return {
                     "label": f"{city}, {state}, {country}".strip(", "),
                     "lat": round(float(lat), 4),
@@ -102,7 +143,16 @@ def detect_live_location(api_key: Optional[str] = None) -> Optional[Dict]:
     except Exception:
         pass
 
-    return None
+    return {
+        "label": "Dehradun, Uttarakhand, India",
+        "lat": 30.3275,
+        "lon": 78.0325,
+        "city": "Dehradun",
+        "district": "Dehradun",
+        "state": "Uttarakhand",
+        "country": "India",
+        "source": "Agro-Ecological Benchmark Fallback"
+    }
 
 def search_locations(
     query: str, 
