@@ -22,7 +22,7 @@ Across vulnerable agricultural belts—from Central India's Vidarbha & Bundelkha
 
 ## 🌟 2. The "Gandharvas" USP: The Village Community Node Model
 
-### Overcoming the "Jhunjhuna" Problem
+### Overcoming the Problem
 Most agritech solutions fail because they expect individual smallholder farmers with 1–3 acre plots to purchase, power, and maintain expensive IoT sensors in their muddy fields. In reality, sensors get clogged, batteries die, and hardware becomes an abandoned novelty.
 
 ### Our Solution
