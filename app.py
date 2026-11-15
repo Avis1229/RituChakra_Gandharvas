@@ -91,27 +91,27 @@ if "current_lat" not in st.session_state:
         st.session_state.location_node_id = f"COMM_NODE_{abs(hash(init_loc['label'])) % 900 + 100}"
         st.session_state.location_lock_mode = "live"
     else:
-        # Default home preset (Dehradun, Uttarakhand) if offline
-        st.session_state.current_lat = 30.3275
-        st.session_state.current_lon = 78.0325
-        st.session_state.location_name = "Dehradun, Uttarakhand, India"
-        st.session_state.rc_loc_search = "Dehradun, Uttarakhand, India"
-        st.session_state.location_zone = "Sub-Himalayan Valley & Montane Zone"
-        st.session_state.location_node_id = "COMM_NODE_UK_108"
-        st.session_state.location_lock_mode = "default"
+        # Zero hardcoded fallback - await authentic user coordinates or GPS
+        st.session_state.current_lat = None
+        st.session_state.current_lon = None
+        st.session_state.location_name = ""
+        st.session_state.rc_loc_search = ""
+        st.session_state.location_zone = ""
+        st.session_state.location_node_id = ""
+        st.session_state.location_lock_mode = "pending"
 
 if "location_name" not in st.session_state:
-    st.session_state.location_name = "Dehradun, Uttarakhand, India"
+    st.session_state.location_name = ""
 if "rc_loc_search" not in st.session_state:
-    st.session_state.rc_loc_search = "Dehradun, Uttarakhand, India"
+    st.session_state.rc_loc_search = ""
 if "location_zone" not in st.session_state:
-    st.session_state.location_zone = "Sub-Himalayan Valley & Montane Zone"
+    st.session_state.location_zone = ""
 if "location_node_id" not in st.session_state:
-    st.session_state.location_node_id = "COMM_NODE_UK_108"
+    st.session_state.location_node_id = ""
 if "location_lock_mode" not in st.session_state:
-    st.session_state.location_lock_mode = "default"
+    st.session_state.location_lock_mode = "pending"
 if "selected_crop" not in st.session_state:
-    st.session_state.selected_crop = "Cotton"
+    st.session_state.selected_crop = ""
 if "field_acres" not in st.session_state:
     st.session_state.field_acres = 1.0
 if "boxes_view_toggle" not in st.session_state:
@@ -699,11 +699,34 @@ if st.session_state.get("rc_loc_search") and st.session_state.rc_loc_search.stri
             st.session_state.location_zone = f"{m.get('district', '')}, {m.get('state', '')}".strip(", ") or "Agro-Ecological Zone"
             st.session_state.location_node_id = f"COMM_NODE_{abs(hash(m['label'])) % 900 + 100}"
 
-# Retrieve location preset details or dynamic agro-ecological inference
-preset_info = DEFAULT_LOCATIONS.get(
-    st.session_state.location_name,
-    DEFAULT_LOCATIONS.get("Amravati, Vidarbha (MH)", list(DEFAULT_LOCATIONS.values())[0])
-)
+# ==============================================================================
+# ZERO HARDCODING GUARD & FORMAL LOCATION SETUP NOTIFICATION
+# ==============================================================================
+if not st.session_state.get("current_lat") or not st.session_state.get("current_lon") or not st.session_state.get("location_name"):
+    st.html(f"""
+    <div style="background-color: {c_card_bg}; border: 1.5px solid #0B3D91; border-radius: 6px; padding: 22px 20px; margin: 18px 0; box-shadow: 0 4px 14px rgba(11,61,145,0.08);">
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <span style="font-size: 1.3rem;">🛰️</span>
+                <span style="font-size: 1.05rem; font-weight: 700; color: #0B3D91; letter-spacing: 0.02em;">Farm Location Setup Required</span>
+            </div>
+            <span style="background: rgba(11,61,145,0.1); color: #0B3D91; font-size: 0.68rem; font-weight: 700; padding: 3px 8px; border-radius: 12px; letter-spacing: 0.04em;">ZERO HARDCODING</span>
+        </div>
+        <p style="margin: 0 0 14px 0; color: {c_text_muted}; font-size: 0.88rem; line-height: 1.5;">
+            RituChakra strictly eliminates dummy coordinates and hardcoded fallbacks. All agro-climatic advisories, soil calibrations, and NASA POWER / SMAP observations are dynamically computed for your authentic farm coordinates.
+        </p>
+        <div style="background: rgba(11,61,145,0.04); border-left: 3px solid #0B3D91; border-radius: 4px; padding: 12px 14px; font-size: 0.82rem; color: {c_text}; line-height: 1.6;">
+            <b>• Mobile / Device GPS:</b> Tap <i>'Allow'</i> when your browser requests location access, or click the <b>🎯 Locate</b> button above.<br>
+            <b>• Manual Search:</b> Type your village, tehsil, or district name in the search bar above and press Enter.<br>
+            <b>• Benchmark Hub:</b> Or select a regional research hub from the left sidebar menu.
+        </div>
+    </div>
+    """)
+    st.info("👆 Please detect or enter your farm location above to compute live satellite agro-climatic advisory.")
+    st.stop()
+
+# Retrieve location preset details if a benchmark hub was selected, otherwise empty dict
+preset_info = DEFAULT_LOCATIONS.get(st.session_state.location_name, {})
 
 def infer_soil_and_agro_zone(lat: float, lon: float, location_name: str, region_zone: str):
     loc_lower = (location_name + " " + region_zone).lower()
@@ -890,8 +913,16 @@ soil_profile = {
 # ==============================================================================
 tap_to_run = st.button("Tap to Run", type="primary", use_container_width=True)
 if tap_to_run:
+    if not st.session_state.get("selected_crop"):
+        st.warning("⚠️ Please specify your target crop above (or tap one of the crop chips) before running analysis.")
+        st.stop()
     st.cache_data.clear()
-    st.toast("Synthesizing NASA Earth Observations & Soil Telemetry...", icon="🚀")
+    st.toast(f"Synthesizing NASA Earth Observations for {st.session_state.selected_crop}...", icon="🚀")
+
+# Formally prompt user if target crop is not yet entered (zero hardcoded default)
+if not st.session_state.get("selected_crop"):
+    st.info("🌱 **Crop Selection Required:** Please type your target crop or click one of the quick chips above (e.g. Sugarcane, Cotton, Wheat, Rice) to compute dynamic adaptation strategies.")
+    st.stop()
 
 # Rotation Engine Synthesis
 strategies = generate_rotation_strategies(

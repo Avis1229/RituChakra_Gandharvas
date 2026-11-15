@@ -24,8 +24,7 @@ def detect_live_location(api_key: Optional[str] = None) -> Optional[Dict]:
     1. ip-api.com (Instant, reliable, zero key required)
     2. Geoapify IP Geolocation (if key provided)
     3. ipapi.co (Secondary free fallback)
-    Guards against foreign cloud hosting datacenters (Render/AWS/GCP in US/EU)
-    so Indian agro-advisory default never points to overseas locations.
+    Returns None if overseas cloud host is detected or detection is unavailable (zero hardcoding).
     """
     # 1. Primary fast fallback: ip-api.com
     try:
@@ -35,34 +34,27 @@ def detect_live_location(api_key: Optional[str] = None) -> Optional[Dict]:
             if data.get("status") == "success":
                 lat = data.get("lat")
                 lon = data.get("lon")
-                city = data.get("city", "Local Field")
+                city = data.get("city", "")
                 state = data.get("regionName", "")
-                country = data.get("country", "India")
-                country_code = data.get("countryCode", "IN")
+                country = data.get("country", "")
+                country_code = data.get("countryCode", "")
                 
-                # Check for cloud hosting data centers (Render in US/EU, etc.)
-                if country_code not in ["IN"] and country not in ["India"]:
-                    return {
-                        "label": "Dehradun, Uttarakhand, India",
-                        "lat": 30.3275,
-                        "lon": 78.0325,
-                        "city": "Dehradun",
-                        "district": "Dehradun",
-                        "state": "Uttarakhand",
-                        "country": "India",
-                        "source": "Agro-Ecological Benchmark Fallback"
-                    }
+                # Reject overseas cloud server IPs (Render US-East, AWS, etc.)
+                if country_code not in ["IN"] and country.lower() != "india":
+                    return None
 
-                return {
-                    "label": f"{city}, {state}, {country}".strip(", "),
-                    "lat": round(float(lat), 4),
-                    "lon": round(float(lon), 4),
-                    "city": city,
-                    "district": city,
-                    "state": state,
-                    "country": country,
-                    "source": "Live Network Geolocation"
-                }
+                if lat is not None and lon is not None:
+                    label = f"{city}, {state}, {country}".strip(", ") or f"{lat:.4f}°N, {lon:.4f}°E"
+                    return {
+                        "label": label,
+                        "lat": round(float(lat), 4),
+                        "lon": round(float(lon), 4),
+                        "city": city,
+                        "district": city,
+                        "state": state,
+                        "country": country,
+                        "source": "Live Network Geolocation"
+                    }
     except Exception:
         pass
 
@@ -78,23 +70,15 @@ def detect_live_location(api_key: Optional[str] = None) -> Optional[Dict]:
                 lat = loc.get("latitude")
                 lon = loc.get("longitude")
                 if lat is not None and lon is not None:
-                    city = data.get("city", {}).get("name") or "Local Field"
+                    city = data.get("city", {}).get("name") or ""
                     state = data.get("state", {}).get("name") or ""
-                    country = data.get("country", {}).get("name") or "India"
-                    country_code = data.get("country", {}).get("code", "IN")
-                    if country_code not in ["IN"] and country not in ["India"]:
-                        return {
-                            "label": "Dehradun, Uttarakhand, India",
-                            "lat": 30.3275,
-                            "lon": 78.0325,
-                            "city": "Dehradun",
-                            "district": "Dehradun",
-                            "state": "Uttarakhand",
-                            "country": "India",
-                            "source": "Agro-Ecological Benchmark Fallback"
-                        }
+                    country = data.get("country", {}).get("name") or ""
+                    country_code = data.get("country", {}).get("code", "")
+                    if country_code not in ["IN"] and country.lower() != "india":
+                        return None
+                    label = f"{city}, {state}, {country}".strip(", ") or f"{lat:.4f}°N, {lon:.4f}°E"
                     return {
-                        "label": f"{city}, {state}, {country}".strip(", "),
+                        "label": label,
                         "lat": round(float(lat), 4),
                         "lon": round(float(lon), 4),
                         "city": city,
@@ -115,23 +99,15 @@ def detect_live_location(api_key: Optional[str] = None) -> Optional[Dict]:
             lat = data.get("latitude")
             lon = data.get("longitude")
             if lat and lon:
-                city = data.get("city", "Local Field")
+                city = data.get("city", "")
                 state = data.get("region", "")
-                country = data.get("country_name", "India")
-                country_code = data.get("country_code", "IN")
-                if country_code not in ["IN"] and country not in ["India"]:
-                    return {
-                        "label": "Dehradun, Uttarakhand, India",
-                        "lat": 30.3275,
-                        "lon": 78.0325,
-                        "city": "Dehradun",
-                        "district": "Dehradun",
-                        "state": "Uttarakhand",
-                        "country": "India",
-                        "source": "Agro-Ecological Benchmark Fallback"
-                    }
+                country = data.get("country_name", "")
+                country_code = data.get("country_code", "")
+                if country_code not in ["IN"] and country.lower() != "india":
+                    return None
+                label = f"{city}, {state}, {country}".strip(", ") or f"{lat:.4f}°N, {lon:.4f}°E"
                 return {
-                    "label": f"{city}, {state}, {country}".strip(", "),
+                    "label": label,
                     "lat": round(float(lat), 4),
                     "lon": round(float(lon), 4),
                     "city": city,
@@ -143,16 +119,7 @@ def detect_live_location(api_key: Optional[str] = None) -> Optional[Dict]:
     except Exception:
         pass
 
-    return {
-        "label": "Dehradun, Uttarakhand, India",
-        "lat": 30.3275,
-        "lon": 78.0325,
-        "city": "Dehradun",
-        "district": "Dehradun",
-        "state": "Uttarakhand",
-        "country": "India",
-        "source": "Agro-Ecological Benchmark Fallback"
-    }
+    return None
 
 def search_locations(
     query: str, 
