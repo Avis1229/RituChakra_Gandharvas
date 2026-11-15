@@ -56,4 +56,12 @@ def test_compute_climate_shifts_multi_year_trend(sample_climate_dataframe):
     # Actionable insights list must contain agricultural alert bullets
     assert len(shifts["insights"]) >= 2
     assert any("Thermal Shift" in s or "Warming" in s for s in shifts["insights"])
+    
+    # Growing Degree Days (GDD) & Phenology Acceleration verification
+    assert "early_gdd" in shifts
+    assert "recent_gdd" in shifts
+    assert "gdd_delta" in shifts
+    assert shifts["gdd_delta"] > 0
+    assert "ripening_acceleration_days" in shifts
+    assert shifts["ripening_acceleration_days"] > 0
 

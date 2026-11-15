@@ -5,6 +5,8 @@
 **Hardware Profile:** Intel i5 12th Gen | 16GB RAM | NVIDIA RTX 2050 (4GB VRAM)  
 **Architecture Principle:** High-yield Tabular Space AI & Downscaled Microclimate Calibration (Zero heavy local raster downloads)
 
+> 📖 **Comprehensive System Guide & Judge Defense:** For complete mathematical proofs, 3-Phase AI pipelines, sensor fusion formulas, and judge Q&A defense, see **[HOW_IT_WORKS.md](HOW_IT_WORKS.md)**.
+
 ---
 
 ## 🚀 1. Executive Summary & Objective
@@ -12,9 +14,9 @@
 Across vulnerable agricultural belts—from Central India's Vidarbha & Bundelkhand to semi-arid regions globally—rising temperatures (+0.5°C to +1.5°C over the past decade), erratic monsoon onset, and declining groundwater tables are causing severe yield losses in traditional monocultures (e.g. Cotton, Paddy Rice, Wheat).
 
 **Field Shift** is a lightweight, decision-support platform that fuses **NASA Earth Observations** with a **Village/Tehsil Community Node** to generate **3 actionable crop rotation strategies**:
-1. **Optimized Baseline:** Climate-adjusted sowing calendar and deficit irrigation for the farmer's current primary crop.
-2. **Soil Builder Strategy:** Nitrogen-fixing legumes (e.g., Chickpea, Moong, Pigeon Pea) restoring biological soil nitrogen (+45 to +85 kg N/ha) while cutting water consumption by 50–65%.
-3. **Climate Resilient & Cash Strategy:** Drought- and extreme heat-tolerant crops (Pearl Millet / Bajra, Sorghum / Jowar) capable of photosynthesizing up to 42°C with minimal water footprints.
+1. **Strategy A (Smart Baseline - Timeline Shift):** Climate-adjusted sowing calendar and deficit irrigation for the farmer's current primary crop based on NASA POWER GDD ripening acceleration.
+2. **Strategy B (The Escape Crop - Weather Avoidance):** Short-duration, drought- and extreme heat-tolerant crops (Pearl Millet / Bajra, Sorghum / Jowar) harvesting safely before anticipated barometric/thermal disruption.
+3. **Strategy C (The Soil & Wealth Builder):** Nitrogen-fixing legumes (e.g., Chickpea, Moong, Pigeon Pea) restoring biological soil nitrogen (+45 to +85 kg N/ha) and qualifying for carbon/soil health incentives, active during Sentinel-1 SAR waterlogging recovery.
 
 ---
 
@@ -85,7 +87,7 @@ To ensure the application runs smoothly on standard laptops (e.g., Intel i5 12th
 
 ```bash
 # 1. Clone repository
-git clone https://github.com/AhqafCoder/RituChakra_Gandharvas.git
+git clone https://github.com/Avis1229/RituChakra_Gandharvas.git
 cd RituChakra_Gandharvas
 
 # 2. Activate virtual environment
@@ -110,8 +112,11 @@ RituChakra_Gandharvas/
 ├── app.py                      # Main Streamlit application with 4 core tabs
 ├── config.py                   # Agricultural presets & FAO/ICAR crop database
 ├── requirements.txt            # Python dependencies
+├── HOW_IT_WORKS.md             # Complete system architecture, math & judge defense
+├── README.md                   # Hackathon pitch documentation
 ├── modules/
 │   ├── __init__.py
+│   ├── geocoder.py             # Geoapify live search & reverse geocoding with OSM fallback
 │   ├── nasa_power.py           # NASA POWER REST API client with offline cache
 │   ├── community_node.py       # ESP32 calibration node & sensor fusion engine
 │   ├── climate_analysis.py     # 10-year trend, warming rate & monsoon shift metrics
@@ -120,7 +125,7 @@ RituChakra_Gandharvas/
 │   └── visualizer.py           # Publication-quality interactive Plotly charts
 ├── firmware/
 │   └── esp32_community_node.ino # Arduino C++ firmware for village AWS station
-└── README.md                   # Hackathon pitch documentation
+└── tests/                      # 30 Unit Tests (100% PASSING in <5s)
 ```
 
 ---

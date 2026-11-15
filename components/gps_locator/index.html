@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    }
+    body {
+      background: transparent;
+      overflow: hidden;
+      padding: 2px 0 6px 0;
+    }
+    .gps-container {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .gps-btn {
+      background: #0B3D91;
+      color: #FFFFFF;
+      border: 1px solid #1E40AF;
+      border-radius: 4px;
+      padding: 8px 12px;
+      font-size: 0.80rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      width: 100%;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+    }
+    .gps-btn:hover {
+      background: #1D4ED8;
+      border-color: #38BDF8;
+      box-shadow: 0 0 10px rgba(56, 189, 248, 0.3);
+    }
+    .gps-btn:active {
+      transform: translateY(1px);
+    }
+    .gps-btn:disabled {
+      background: #1E293B;
+      color: #64748B;
+      border-color: #334155;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+    .pulse-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #D4E838;
+      display: inline-block;
+      animation: pulse 1.8s infinite;
+    }
+    @keyframes pulse {
+      0% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(1.3); }
+      100% { opacity: 1; transform: scale(1); }
+    }
+    .gps-status {
+      font-size: 0.72rem;
+      color: #94A3B8;
+      text-align: center;
+      line-height: 1.25;
+      min-height: 14px;
+    }
+    .gps-status.success {
+      color: #10B981;
+      font-weight: 600;
+    }
+    .gps-status.error {
+      color: #F87171;
+    }
+  </style>
+</head>
+<body>
+  <div class="gps-container">
+    <button id="gps-btn" class="gps-btn" onclick="requestGPS(true)">
+      <span class="pulse-dot"></span>
+      <span id="btn-text">Auto-Detect My Live GPS</span>
+    </button>
+    <div id="gps-status" class="gps-status">Click to lock hardware GPS or allow browser prompt</div>
+  </div>
+
+  <script>
+    function sendValueToStreamlit(value) {
+      window.parent.postMessage({
+        isStreamlitMessage: true,
+        type: "streamlit:setComponentValue",
+        value: value
+      }, "*");
+    }
+
+    function notifyFrameHeight(h) {
+      window.parent.postMessage({
+        isStreamlitMessage: true,
+        type: "streamlit:setFrameHeight",
+        height: h || document.body.scrollHeight || 58
+      }, "*");
+    }
+
+    function initComponent() {
+      window.parent.postMessage({
+        isStreamlitMessage: true,
+        type: "streamlit:componentReady",
+        apiVersion: 1
+      }, "*");
+      notifyFrameHeight(60);
+    }
+
+    function requestGPS(userInitiated) {
+      const btn = document.getElementById("gps-btn");
+      const btnText = document.getElementById("btn-text");
+      const status = document.getElementById("gps-status");
+
+      if (!navigator.geolocation) {
+        status.className = "gps-status error";
+        status.innerText = "HTML5 GPS is not supported by your browser.";
+        notifyFrameHeight(60);
+        return;
+      }
+
+      btn.disabled = true;
+      btnText.innerText = "Acquiring Satellite Lock...";
+      status.className = "gps-status";
+      status.innerText = "Please click 'Allow' if prompted by browser...";
+      notifyFrameHeight(60);
+
+      navigator.geolocation.getCurrentPosition(
+        function (position) {
+          const lat = position.coords.latitude;
+          const lon = position.coords.longitude;
+          const acc = Math.round(position.coords.accuracy || 0);
+
+          btn.disabled = false;
+          btnText.innerText = "GPS Position Locked";
+          status.className = "gps-status success";
+          status.innerText = `🛰️ Locked: ${lat.toFixed(4)}°N, ${lon.toFixed(4)}°E (±${acc}m)`;
+          notifyFrameHeight(60);
+
+          sendValueToStreamlit({
+            latitude: lat,
+            longitude: lon,
+            accuracy: acc,
+            timestamp: Date.now()
+          });
+        },
+        function (error) {
+          btn.disabled = false;
+          btnText.innerText = "Auto-Detect My Live GPS";
+          status.className = "gps-status error";
+
+          let msg = "Could not acquire GPS position.";
+          if (error.code === 1) {
+            msg = "Location access blocked. Allow in browser address bar (🔒 icon).";
+          } else if (error.code === 2) {
+            msg = "Position unavailable. Ensure device GPS is turned on.";
+          } else if (error.code === 3) {
+            msg = "Satellite acquisition timed out. Try again.";
+          }
+          status.innerText = msg;
+          notifyFrameHeight(60);
+        },
+        {
+          enableHighAccuracy: true,
+          timeout: 10000,
+          maximumAge: 10000
+        }
+      );
+    }
+
+    // Initialize and trigger GPS on load
+    window.addEventListener("DOMContentLoaded", function () {
+      initComponent();
+      // Auto-request GPS on cold load
+      setTimeout(function () {
+        requestGPS(false);
+      }, 500);
+    });
+  </script>
+</body>
+</html>

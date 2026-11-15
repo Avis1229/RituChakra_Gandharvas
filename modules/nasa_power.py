@@ -68,7 +68,7 @@ def generate_synthetic_fallback(lat: float, lon: float, start_year: int, end_yea
     df = pd.DataFrame(records)
     return df
 
-def fetch_nasa_power_climate(lat: float, lon: float, start_year: int = 2014, end_year: int = 2024, timeout: int = 8) -> pd.DataFrame:
+def fetch_nasa_power_climate(lat: float, lon: float, start_year: int = 2014, end_year: int = 2024, timeout: int = 20) -> pd.DataFrame:
     """
     Fetch historical climate records from NASA POWER API.
     Parameters requested:
@@ -87,48 +87,53 @@ def fetch_nasa_power_climate(lat: float, lon: float, start_year: int = 2014, end
         "format": "JSON"
     }
     
-    try:
-        response = requests.get(NASA_POWER_MONTHLY_URL, params=params, timeout=timeout)
-        if response.status_code == 200:
-            data = response.json()
-            param_data = data.get("properties", {}).get("parameter", {})
-            
-            t2m = param_data.get("T2M", {})
-            precip = param_data.get("PRECTOTCORR", {})
-            rh = param_data.get("RH2M", {})
-            solar = param_data.get("ALLSKY_SFC_SW_DWN", {})
-            
-            records = []
-            # Keys in monthly data are format YYYYMM and YYYY13 for annual average
-            for date_key, temp_val in t2m.items():
-                if len(date_key) == 6:
-                    year = int(date_key[:4])
-                    month = int(date_key[4:])
-                    if 1 <= month <= 12:
-                        p_val = precip.get(date_key, -999)
-                        rh_val = rh.get(date_key, -999)
-                        sol_val = solar.get(date_key, -999)
-                        
-                        # NASA missing value is -999
-                        records.append({
-                            "Date": date_key,
-                            "Year": year,
-                            "Month": month,
-                            "Temperature_C": float(temp_val) if temp_val != -999 else np.nan,
-                            "Precipitation_mm": float(p_val) if p_val != -999 else 0.0,
-                            "RelativeHumidity_pct": float(rh_val) if rh_val != -999 else 50.0,
-                            "SolarRadiation_MJ": float(sol_val) if sol_val != -999 else 18.0,
-                            "Is_Fallback": False
-                        })
-            
-            df = pd.DataFrame(records)
-            if not df.empty:
-                df["Temperature_C"] = df["Temperature_C"].interpolate().bfill().ffill()
-                return df
+    # Attempt live API call with retry for rock-solid hackathon execution
+    for attempt in range(1, 3):
+        try:
+            req_timeout = timeout if attempt == 1 else timeout + 5
+            response = requests.get(NASA_POWER_MONTHLY_URL, params=params, timeout=req_timeout)
+            if response.status_code == 200:
+                data = response.json()
+                param_data = data.get("properties", {}).get("parameter", {})
                 
-    except Exception as e:
-        print(f"[NASA POWER] Notice: Network/API issue ({e}). Engaging calibrated fallback cache.")
+                t2m = param_data.get("T2M", {})
+                precip = param_data.get("PRECTOTCORR", {})
+                rh = param_data.get("RH2M", {})
+                solar = param_data.get("ALLSKY_SFC_SW_DWN", {})
+                
+                records = []
+                # Keys in monthly data are format YYYYMM and YYYY13 for annual average
+                for date_key, temp_val in t2m.items():
+                    if len(date_key) == 6:
+                        year = int(date_key[:4])
+                        month = int(date_key[4:])
+                        if 1 <= month <= 12:
+                            p_val = precip.get(date_key, -999)
+                            rh_val = rh.get(date_key, -999)
+                            sol_val = solar.get(date_key, -999)
+                            
+                            # NASA missing value is -999
+                            records.append({
+                                "Date": date_key,
+                                "Year": year,
+                                "Month": month,
+                                "Temperature_C": float(temp_val) if temp_val != -999 else np.nan,
+                                "Precipitation_mm": float(p_val) if p_val != -999 else 0.0,
+                                "RelativeHumidity_pct": float(rh_val) if rh_val != -999 else 50.0,
+                                "SolarRadiation_MJ": float(sol_val) if sol_val != -999 else 18.0,
+                                "Is_Fallback": False
+                            })
+                
+                df = pd.DataFrame(records)
+                if not df.empty:
+                    df["Temperature_C"] = df["Temperature_C"].interpolate().bfill().ffill()
+                    return df
+                    
+        except Exception as e:
+            if attempt < 2:
+                continue
+            print(f"[NASA POWER] Notice: Network/API issue ({e}). Engaging calibrated fallback cache.")
         
-    # Return realistic calibrated fallback
+    # Return realistic calibrated fallback only if internet is completely unavailable
     return generate_synthetic_fallback(lat, lon, start_year, end_year)
 

@@ -12,7 +12,10 @@ from modules.visualizer import (
     create_climate_trend_chart,
     create_seasonality_shift_chart,
     create_calibration_comparison_chart,
-    create_strategy_radar_comparison
+    create_strategy_radar_comparison,
+    create_bme280_pressure_trend_chart,
+    create_digital_twin_projection_chart,
+    create_field_satellite_map
 )
 
 def test_create_climate_trend_chart():
@@ -70,4 +73,39 @@ def test_create_strategy_radar_comparison():
     assert isinstance(fig, go.Figure)
     assert len(fig.data) == 2 # Trace 1: Suitability, Trace 2: Water savings
     assert len(fig.data[0].x) == 3
+
+def test_create_bme280_pressure_trend_chart():
+    """Verify BME280 pressure and Sentinel-1 SAR visualizer."""
+    df_telemetry = pd.DataFrame({
+        "Date": [f"2026-11-{i:02d}" for i in range(1, 11)],
+        "BME280_Pressure_hPa": [1012.0 + (i % 3) for i in range(10)],
+        "Bird_Effect_Storm_Alert": [i == 5 for i in range(10)],
+        "Sentinel1_SAR_Backscatter_dB": [-14.5 if i != 5 else -21.0 for i in range(10)]
+    })
+    fig = create_bme280_pressure_trend_chart(df_telemetry)
+    assert isinstance(fig, go.Figure)
+    assert len(fig.data) >= 2 # Pressure trace + SAR trace (+ Alert markers)
+
+def test_create_digital_twin_projection_chart():
+    """Verify Digital Twin trajectory projection from 2026 to 2030."""
+    annual_df = pd.DataFrame({
+        "Year": [2018, 2019, 2020, 2021, 2022],
+        "Temperature_C": [26.0, 26.3, 26.6, 26.9, 27.2]
+    })
+    fig = create_digital_twin_projection_chart(annual_df, target_year=2028)
+    assert isinstance(fig, go.Figure)
+    assert len(fig.data) == 3 # Historical + Projected + Focus marker
+
+def test_create_field_satellite_map():
+    """Verify Mapbox high-resolution satellite field map creation."""
+    fig = create_field_satellite_map(
+        lat=20.9320,
+        lon=77.7523,
+        location_name="Amravati, Vidarbha",
+        node_id="COMM_NODE_MH_042",
+        mapbox_token="pk.test_mock_token"
+    )
+    assert isinstance(fig, go.Figure)
+    assert len(fig.data) == 2 # Field Centroid + IoT Node trace
+
 

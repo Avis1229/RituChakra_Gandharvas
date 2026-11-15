@@ -78,6 +78,26 @@ def compute_climate_shifts(df_climate: pd.DataFrame) -> dict:
     early_rabi_heat = df_early[df_early["Month"].isin([2, 3])]["Temperature_C"].mean()
     recent_rabi_heat = df_recent[df_recent["Month"].isin([2, 3])]["Temperature_C"].mean()
     rabi_heat_spike = recent_rabi_heat - early_rabi_heat
+
+    # 3. Growing Degree Days (GDD) & Phenology Ripening Acceleration Tracker
+    # T_base = 10.0°C (standard agronomic base temperature for Kharif/annual crops)
+    T_BASE = 10.0
+    def compute_annual_gdd(sub_df):
+        if sub_df.empty:
+            return 2200.0
+        gdd_per_year = []
+        for yr, group in sub_df.groupby("Year"):
+            yr_gdd = sum(max(0.0, row["Temperature_C"] - T_BASE) * 30.4 for _, row in group.iterrows())
+            gdd_per_year.append(yr_gdd)
+        return float(np.mean(gdd_per_year)) if gdd_per_year else 2200.0
+
+    early_gdd = compute_annual_gdd(df_early)
+    recent_gdd = compute_annual_gdd(df_recent)
+    gdd_delta = recent_gdd - early_gdd
+    
+    # Phenology shift: Higher heat accumulation forces premature ripening by 8 to 18 days,
+    # leaving grain-filling stages exposed to dry terminal heat if sowing is not adapted.
+    ripening_acceleration_days = max(4, min(24, int(round(gdd_delta / 14.0)))) if gdd_delta > 0 else 0
     
     # Calculate Drought Vulnerability Index (0 to 100)
     # Higher temperature + declining rainfall + rainfall variance increases vulnerability
@@ -94,15 +114,17 @@ def compute_climate_shifts(df_climate: pd.DataFrame) -> dict:
     # Actionable insight bullet points
     insights = []
     if temp_delta > 0.3:
-        insights.append(f"🌡️ **Thermal Shift:** Average growing season temperature has increased by **+{temp_delta:.2f}°C** compared to the baseline.")
+        insights.append(f"• **Thermal Shift Analysis:** Average growing season temperature has increased by **+{temp_delta:.2f}°C** compared to the baseline.")
     if rabi_heat_spike > 0.5:
-        insights.append(f"🔥 **Terminal Heat Alert:** Feb-Mar maturity temperatures rose by **+{rabi_heat_spike:.2f}°C**, increasing shriveled grain risks in conventional crops like wheat.")
+        insights.append(f"• **Terminal Heat Exposure:** Reproductive period temperatures increased by **+{rabi_heat_spike:.2f}°C**, increasing shriveled grain risks in sensitive crops.")
     if precip_delta < -20:
-        insights.append(f"💧 **Water Deficit:** Annual rainfall decreased by **{abs(precip_delta):.1f} mm ({abs(precip_delta_pct):.1f}%)**, draining root-zone moisture.")
+        insights.append(f"• **Hydrological Deficit:** Annual rainfall decreased by **{abs(precip_delta):.1f} mm ({abs(precip_delta_pct):.1f}%)**, depleting root-zone moisture.")
     if early_peak_month != recent_peak_month:
-        insights.append(f"🌧️ **Monsoon Distribution Shift:** Peak rainfall shifted from **{month_names.get(early_peak_month)}** to **{month_names.get(recent_peak_month)}**, requiring recalibrated sowing dates.")
+        insights.append(f"• **Precipitation Distribution Shift:** Peak rainfall shifted from **{month_names.get(early_peak_month)}** to **{month_names.get(recent_peak_month)}**, requiring recalibrated sowing schedules.")
     else:
-        insights.append(f"⛈️ **Rainfall Volatility:** Monsoon remains centered in {month_names.get(recent_peak_month)}, but year-over-year variability is {precip_cv:.1f}%.")
+        insights.append(f"• **Interannual Rainfall Volatility:** Monsoon peak remains centered in {month_names.get(recent_peak_month)}, with interannual variability at {precip_cv:.1f}%.")
+    if gdd_delta > 50:
+        insights.append(f"• **GDD & Ripening Acceleration:** Cumulative Growing Degree Days expanded by **+{gdd_delta:.0f} GDD**, advancing crop maturity by **{ripening_acceleration_days - 2} to {ripening_acceleration_days + 2} days**.")
         
     return {
         "num_years": num_years,
@@ -110,6 +132,10 @@ def compute_climate_shifts(df_climate: pd.DataFrame) -> dict:
         "recent_period": recent_period_label,
         "temp_delta": round(temp_delta, 2),
         "temp_slope_per_decade": round(temp_slope_per_decade, 2),
+        "early_gdd": round(early_gdd, 0),
+        "recent_gdd": round(recent_gdd, 0),
+        "gdd_delta": round(gdd_delta, 0),
+        "ripening_acceleration_days": ripening_acceleration_days,
         "precip_delta_mm": round(precip_delta, 1),
         "precip_delta_pct": round(precip_delta_pct, 1),
         "precip_cv": round(precip_cv, 1),
