@@ -132,14 +132,11 @@ RituChakra_Gandharvas/
 
 ## 👥 7. Team Gandharvas
 
-* **Sarthak Maurya** — R&D Lead & Hardware Lead
-* **Aadya Saraswat** — R&D and Designing Lead
-* **Ahqaf Ali** — Hardware & Backend Lead
-* **Vivek Vishwakarma** — AI/ML Lead
-* **Lal Shivam Singh** — UI/UX Lead
-* **Trisha Bhardwaj** — Documentation Lead
-* **Avi Singh** — Project Strategy & Development Lead
+* **Sarthak Maurya**
+* **Aadya Saraswat**
+* **Deepika Singh**
+* **Ansh Deep Singh Cheema**
+* **Avi Singh**
 
----
 *Built for the **NASA Space Apps Challenge 2026**.*
 
