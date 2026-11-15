@@ -434,6 +434,17 @@ DEFAULT_LOCATIONS = {
 
 # Crop Knowledge Base based on FAO GAEZ, ICAR & USDA Agricultural Extension data
 CROP_CATALOG = {
+    "Sugarcane": {
+        "category": "Perennial Cash Crop (Extremely High Water / Biomass)",
+        "optimal_temp_c": [20, 36],
+        "min_water_mm": 1200,
+        "optimal_water_mm": 1800,
+        "optimal_ph": [6.0, 7.8],
+        "n_demand": "Very High (180-240 kg/ha)",
+        "soil_impact": "Heavy nutrient and groundwater drawdown; ratoon depletion",
+        "drought_tolerance": "Low",
+        "duration_days": 320
+    },
     "Cotton": {
         "category": "Cash Crop (High Water / High Input)",
         "optimal_temp_c": [21, 35],

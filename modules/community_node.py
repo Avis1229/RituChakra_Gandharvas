@@ -18,7 +18,7 @@ class CommunityNodeEngine:
         self.node_id = node_id
         self.radius_km = radius_km
         self.is_custom_node = is_custom_node
-        self.location_name = "Custom Field Node" if is_custom_node else "Gram Panchayat Krishi Kendra Node"
+        self.location_name = "Custom Field Node" if is_custom_node else "Community Agro-Meteorological Node"
         self.status = "ONLINE (Active MQTT/HTTP Stream)"
         self.custom_telemetry = None
 
@@ -79,7 +79,8 @@ class CommunityNodeEngine:
         return None
         
     def generate_ground_truth_telemetry(self, satellite_temp: float, satellite_precip: float, 
-                                        base_soil_moisture: float = 24.5, days: int = 30, seed: int = None) -> pd.DataFrame:
+                                        base_soil_moisture: float = 24.5, days: int = 30, seed: int = None,
+                                        elevation_m: float = 0.0) -> pd.DataFrame:
         """
         Simulate 30 days of high-frequency local BME280 + Sentinel-1 SAR telemetry.
         Ground sensors capture micro-topography, barometric pressure anomalies, and canopy effects.
@@ -98,7 +99,9 @@ class CommunityNodeEngine:
         precip_bias_multiplier = 1.15 # Convective storms cause localized spikes
         
         current_sm = base_soil_moisture
-        base_pressure = 1012.5 # Mean sea-level / field station barometric baseline (hPa)
+        # Barometric hypsometric formula for real physical station elevation (Pahad vs Plains)
+        h_clamped = max(0.0, min(4500.0, float(elevation_m)))
+        base_pressure = round(1013.25 * ((1.0 - 2.25577e-5 * h_clamped) ** 5.25588), 1)
         
         for i, dt in enumerate(dates):
             # Satellite nominal reading with small variance

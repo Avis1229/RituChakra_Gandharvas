@@ -117,8 +117,12 @@ void loop() {
     // Phase 1: Bird Effect proactive storm alert
     bool birdEffectAlert = (deltaP3h <= -2.0F && dewPointDepression <= 4.5F);
     
-    // Construct Ground Truth Calibration JSON Payload
+    // Construct Ground Truth Calibration JSON Payload (Compatible with ArduinoJson v6 and v7)
+#if defined(ARDUINOJSON_VERSION_MAJOR) && ARDUINOJSON_VERSION_MAJOR >= 7
+    JsonDocument doc;
+#else
     StaticJsonDocument<384> doc;
+#endif
     doc["node_id"] = NODE_ID;
     doc["location"] = TEHSIL;
     doc["temp_c"] = round(temperature * 100.0) / 100.0;

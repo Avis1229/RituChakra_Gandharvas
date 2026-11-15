@@ -236,7 +236,7 @@ void loop() {
     Serial.print(",\"rain_mm\":");
     Serial.print(rainTips * 0.2, 1);
     Serial.print(",\"bird_effect\":");
-    Serial.print(birdEffectAlert ? "ALERT_STORM" : "NOMINAL");
+    Serial.print(birdEffectAlert ? "\"ALERT_STORM\"" : "\"NOMINAL\"");
     Serial.println("}");
   }
 

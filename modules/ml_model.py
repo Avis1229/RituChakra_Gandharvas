@@ -107,7 +107,19 @@ class CropSuitabilityModel:
             "Mustard (Rabi Oilseed)": 18.0 if (temp <= 27 and precip < 500) else 0.0
         }
         
-        modifier = crop_modifiers.get(crop_name, 0.0)
+        modifier = crop_modifiers.get(crop_name)
+        if modifier is None:
+            c_low = crop_name.lower()
+            if any(k in c_low for k in ["cane", "paddy", "rice", "banana", "jute"]):
+                modifier = 15.0 if (precip > 1000 and sm > 30) else (-35.0 if drought > 55 or precip < 800 else -10.0)
+            elif any(k in c_low for k in ["millet", "bajra", "jowar", "ragi", "sorghum"]):
+                modifier = 28.0 if (drought >= 45 or temp > 28) else 0.0
+            elif any(k in c_low for k in ["gram", "pulse", "pea", "bean", "dal", "lentil"]):
+                modifier = 20.0 if (drought >= 45 or precip < 650) else 5.0
+            elif any(k in c_low for k in ["mustard", "oilseed", "sunflower", "sesame", "groundnut"]):
+                modifier = 15.0 if (temp <= 30 and precip < 600) else 0.0
+            else:
+                modifier = 0.0
         final_score = np.clip(base_score + modifier, 12.0, 96.0)
         return round(float(final_score), 1)
 

@@ -25,7 +25,41 @@ def generate_rotation_strategies(current_crop: str,
       - Strategy B (The Escape Crop): Weather Avoidance (Short-duration, drought-tolerant millet)
       - Strategy C (The Soil & Wealth Builder): Regenerative Legume / Cover Crop with Carbon Credits
     """
-    crop_info = CROP_CATALOG.get(current_crop, CROP_CATALOG["Cotton"])
+    crop_info = CROP_CATALOG.get(current_crop)
+    if not crop_info:
+        c_low = str(current_crop).lower()
+        if any(k in c_low for k in ["cane", "paddy", "rice", "banana", "jute"]):
+            cat = "Cereal / Perennial (Extremely High Water Demand)"
+            opt_w = 1350
+            dur = 145
+        elif any(k in c_low for k in ["millet", "bajra", "jowar", "ragi", "sorghum"]):
+            cat = "Coarse Cereal (Drought Resilient)"
+            opt_w = 450
+            dur = 75
+        elif any(k in c_low for k in ["pulse", "gram", "pea", "bean", "dal", "lentil"]):
+            cat = "Legume (Atmospheric Nitrogen Fixer)"
+            opt_w = 500
+            dur = 85
+        elif any(k in c_low for k in ["mustard", "oilseed", "sunflower", "groundnut", "sesame"]):
+            cat = "Oilseed (Moderate Water Demand)"
+            opt_w = 550
+            dur = 100
+        else:
+            cat = "Target Agricultural Crop"
+            opt_w = 750
+            dur = 120
+
+        crop_info = {
+            "category": cat,
+            "optimal_temp_c": [20, 34],
+            "min_water_mm": max(250, opt_w - 200),
+            "optimal_water_mm": opt_w,
+            "optimal_ph": [6.0, 7.8],
+            "n_demand": "Moderate (80-120 kg/ha)",
+            "soil_impact": "Standard agricultural rotation",
+            "drought_tolerance": "Moderate",
+            "duration_days": dur
+        }
     temp_delta = climate_shifts.get("temp_delta", 0.6)
     gdd_delta = climate_shifts.get("gdd_delta", 140.0)
     ripening_days = climate_shifts.get("ripening_acceleration_days", 14)

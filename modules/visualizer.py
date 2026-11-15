@@ -560,27 +560,29 @@ def create_field_satellite_map(
 ) -> go.Figure:
     """
     Renders high-resolution satellite imagery map of the target field centroid
-    and adjacent in-situ IoT Field Node using Mapbox Satellite Streets.
+    and adjacent in-situ IoT Field Node using Mapbox Satellite Streets or ESRI World Imagery.
     """
     pal = _get_theme_palette(theme)
     fig = go.Figure()
+
+    clean_loc = location_name.split(",")[0].strip()
 
     # Target Field Centroid Marker
     fig.add_trace(go.Scattermap(
         lat=[lat],
         lon=[lon],
         mode="markers+text",
-        marker=dict(size=16, color=pal["highlight"]),
+        marker=dict(size=16, color="#059669"),
         text=["Field Centroid"],
         textposition="top center",
         textfont=dict(size=12, color="#FFFFFF", family=FONT_INTER),
-        hovertemplate=f"<b>Field Centroid</b><br>{location_name}<br>Lat: {lat:.4f}°N, Lon: {lon:.4f}°E<extra></extra>",
+        hovertemplate=f"<b>Field Centroid</b><br>{clean_loc}<br>Lat: {lat:.4f}°N, Lon: {lon:.4f}°E<extra></extra>",
         name="Target Field Centroid"
     ))
 
     # In-situ Node Telemetry Anchor
-    node_lat = lat + 0.0035
-    node_lon = lon + 0.0035
+    node_lat = lat + 0.0025
+    node_lon = lon + 0.0025
     fig.add_trace(go.Scattermap(
         lat=[node_lat],
         lon=[node_lon],
@@ -593,10 +595,10 @@ def create_field_satellite_map(
         name="Field Ground Node"
     ))
 
-    # Mapbox Satellite Raster Layer Configuration
+    # Satellite Raster Layer Configuration centered exactly on target coordinates
     map_config = dict(
-        center=dict(lat=lat + 0.0017, lon=lon + 0.0017),
-        zoom=11
+        center=dict(lat=lat, lon=lon),
+        zoom=13
     )
     if mapbox_token:
         tile_url = f"https://api.mapbox.com/styles/v1/mapbox/satellite-streets-v12/tiles/256/{{z}}/{{x}}/{{y}}?access_token={mapbox_token}"
@@ -609,16 +611,26 @@ def create_field_satellite_map(
             )
         ]
     else:
-        map_config["style"] = "satellite"
+        # High-Resolution Global Satellite Imagery (Zero Token Required)
+        esri_satellite_url = "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
+        map_config["style"] = "white-bg"
+        map_config["layers"] = [
+            dict(
+                sourcetype="raster",
+                source=[esri_satellite_url],
+                below="traces"
+            )
+        ]
 
     fig.update_layout(
         title=dict(
-            text="High-Resolution Satellite Field Radar (Mapbox)",
+            text=f"🛰️ Satellite Field Radar — {clean_loc} ({lat:.4f}°N, {lon:.4f}°E)",
             font=dict(family=FONT_INTER, size=13, color="#FFFFFF"),
             x=0.01,
             y=0.96
         ),
         map=map_config,
+        uirevision=f"{lat:.4f}_{lon:.4f}_{clean_loc}",
         margin=dict(l=0, r=0, t=40, b=0),
         height=320,
         paper_bgcolor=pal["paper_bg"],
@@ -630,6 +642,77 @@ def create_field_satellite_map(
             x=1,
             font=dict(color="#FFFFFF", size=11, family=FONT_INTER),
             bgcolor="rgba(15, 23, 42, 0.85)"
+        )
+    )
+    return fig
+
+
+def create_climatological_wave_chart(df_annual: pd.DataFrame, theme: str = "light") -> go.Figure:
+    """
+    Renders the smooth, elegant 10-year climatological trajectory curve
+    matching the RituChakra mobile UI design mockup.
+    """
+    pal = _get_theme_palette(theme)
+    fig = go.Figure()
+
+    years = df_annual["Year"].tolist() if not df_annual.empty else list(range(2014, 2025))
+    precip = df_annual["Precipitation_mm"].tolist() if not df_annual.empty else [650 + np.sin(i)*120 for i in range(11)]
+
+    # Smooth Climatological Wave Area Trace
+    fig.add_trace(
+        go.Scatter(
+            x=years,
+            y=precip,
+            mode="lines",
+            name="10-Yr Monsoon Trajectory",
+            line=dict(
+                color="#3B7A57",
+                width=3.5,
+                shape="spline",
+                smoothing=1.3
+            ),
+            fill="tozeroy",
+            fillcolor="rgba(125, 157, 134, 0.22)",
+            hovertemplate="<b>Year %{x}</b>: %{y:.1f} mm annual rain<extra></extra>"
+        )
+    )
+
+    # Subtle marker points at decadal extremes
+    min_idx = int(np.argmin(precip))
+    max_idx = int(np.argmax(precip))
+    fig.add_trace(
+        go.Scatter(
+            x=[years[min_idx], years[max_idx]],
+            y=[precip[min_idx], precip[max_idx]],
+            mode="markers+text",
+            name="Climate Extremes",
+            text=[f"Drought: {precip[min_idx]:.0f}mm", f"Surplus: {precip[max_idx]:.0f}mm"],
+            textposition=["bottom center", "top center"],
+            textfont=dict(family=FONT_INTER, size=10, color=pal["text_color"]),
+            marker=dict(size=8, color=["#E76F51", "#2A9D8F"], line=dict(color="#FFFFFF", width=2)),
+            hoverinfo="skip"
+        )
+    )
+
+    fig.update_layout(
+        margin=dict(l=10, r=10, t=20, b=25),
+        height=190,
+        showlegend=False,
+        paper_bgcolor="rgba(0,0,0,0)",
+        plot_bgcolor="rgba(0,0,0,0)",
+        xaxis=dict(
+            showgrid=False,
+            zeroline=False,
+            showline=True,
+            linecolor="rgba(0,0,0,0.1)",
+            tickfont=dict(family=FONT_INTER, size=10, color=pal["muted_text"]),
+            dtick=2
+        ),
+        yaxis=dict(
+            showgrid=True,
+            gridcolor="rgba(0,0,0,0.05)",
+            zeroline=False,
+            showticklabels=False
         )
     )
     return fig

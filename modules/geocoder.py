@@ -20,15 +20,41 @@ NOMINATIM_REVERSE_URL = "https://nominatim.openstreetmap.org/reverse"
 
 def detect_live_location(api_key: Optional[str] = None) -> Optional[Dict]:
     """
-    Auto-detect the user's current live location using Geoapify IP Geolocation API.
-    Returns:
-        dict: {"label": "City, State, Country", "lat": float, "lon": float, "city": str, "district": str, "state": str, "country": str, "source": str}
+    Auto-detect the user's current live location with multi-tiered fallback:
+    1. ip-api.com (Instant, reliable, zero key required)
+    2. Geoapify IP Geolocation (if key provided)
+    3. ipapi.co (Secondary free fallback)
     """
+    # 1. Primary fast fallback: ip-api.com
+    try:
+        res = requests.get("http://ip-api.com/json/", timeout=3)
+        if res.status_code == 200:
+            data = res.json()
+            if data.get("status") == "success":
+                lat = data.get("lat")
+                lon = data.get("lon")
+                city = data.get("city", "Local Field")
+                state = data.get("regionName", "")
+                country = data.get("country", "India")
+                return {
+                    "label": f"{city}, {state}, {country}".strip(", "),
+                    "lat": round(float(lat), 4),
+                    "lon": round(float(lon), 4),
+                    "city": city,
+                    "district": city,
+                    "state": state,
+                    "country": country,
+                    "source": "Live Network Geolocation"
+                }
+    except Exception:
+        pass
+
+    # 2. Geoapify IP Geolocation if key provided
     key = api_key or GEOAPIFY_API_KEY
     if key:
         try:
             params = {"apiKey": key}
-            res = requests.get(GEOAPIFY_IPINFO_URL, params=params, timeout=4)
+            res = requests.get(GEOAPIFY_IPINFO_URL, params=params, timeout=3)
             if res.status_code == 200:
                 data = res.json()
                 loc = data.get("location", {})
@@ -38,9 +64,8 @@ def detect_live_location(api_key: Optional[str] = None) -> Optional[Dict]:
                     city = data.get("city", {}).get("name") or "Local Field"
                     state = data.get("state", {}).get("name") or ""
                     country = data.get("country", {}).get("name") or "India"
-                    formatted = f"{city}, {state}, {country}".strip(", ")
                     return {
-                        "label": formatted,
+                        "label": f"{city}, {state}, {country}".strip(", "),
                         "lat": round(float(lat), 4),
                         "lon": round(float(lon), 4),
                         "city": city,
@@ -49,12 +74,13 @@ def detect_live_location(api_key: Optional[str] = None) -> Optional[Dict]:
                         "country": country,
                         "source": "Geoapify Live IP Geolocation"
                     }
-        except Exception as e:
-            print(f"[Geocoder] IP detection notice: {e}")
+        except Exception:
+            pass
 
-    # Fallback to ipapi.co (Free, no key)
+    # 3. ipapi.co Fallback
     try:
-        res = requests.get("https://ipapi.co/json/", timeout=4)
+        headers = {"User-Agent": "RituChakra-SpaceApps/1.0"}
+        res = requests.get("https://ipapi.co/json/", headers=headers, timeout=3)
         if res.status_code == 200:
             data = res.json()
             lat = data.get("latitude")
